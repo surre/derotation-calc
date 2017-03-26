@@ -74,17 +74,27 @@ def calc_ellipse_arc_length(a, b, theta):
     # a is the length of major axis
     # b is the length of minor axis
     # theta is the desired rotation in radians
-    # Assumes rotation starts from the major axis to the minor axis
+    # Default: Assumes rotation starts from the minor axis to the major axis
 
     maj_ax = a
     min_ax = b
     rot_angle = theta
+    ul = np.arctan((a/b)*np.tan(rot_angle))
+    ul2 = np.arctan((b/a)*np.tan(rot_angle))
 
+    # To be used when rotation starts from the major axis to the minor axis
     def integrand(x):
+        return np.sqrt(((maj_ax/2.0)**2)*(np.sin(x)**2) + ((min_ax/2.0)**2)*(np.cos(x)**2))
+
+    # To be used when rotation starts from the minor axis to the major axis
+    def integrand2(x):
         return np.sqrt(((min_ax/2.0)**2)*(np.sin(x)**2) + ((maj_ax/2.0)**2)*(np.cos(x)**2))
 
-    arc_len, err = quad(integrand, 0, rot_angle)
-    return float(round(decimal.Decimal(arc_len),1))
+    arc_len, err = quad(integrand, 0, ul)
+    arc_len2, err2 = quad(integrand2, 0, ul2)
+    print("Arc len (min to maj):", arc_len2)
+    print("Arc len (maj to min):", arc_len)
+    return float(round(decimal.Decimal(arc_len2),1))
     
 def calc_arc_lengths(a, b, rot_angle_in_degrees):
     # a is the length of major axis
@@ -105,9 +115,9 @@ if __name__=='__main__':
     top_lbl.config(bg='black', fg='yellow')
     top_lbl.config(font=labelfont, height=3)
     top_lbl.pack(side=TOP, expand=YES, fill=X)
-    photo = ImageTk.PhotoImage(file='./ellipse3.png')
+    photo = ImageTk.PhotoImage(file='ellipse.jpg')
     canv = Canvas(root, width=750, height = 300)
-    canv.create_image(0,-60, image=photo, anchor=NW)
+    canv.create_image(250,5, image=photo, anchor=NW)
     canv.pack(side=TOP)
     ents = makegui(root, fields)
     Button(root, text="Calculate",
